@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Hybrid IPTV Player</title>
+    <meta name="description" content="Nova Hybrid Web & Android IPTV Player met ondersteuning voor Stalker / Ministra portals, Xtream Codes en M3U playlists.">
+    <meta property="og:title" content="Nova Hybrid IPTV Player">
+    <meta property="og:description" content="Nova Hybrid Web & Android IPTV Player met ondersteuning voor Stalker / Ministra portals, Xtream Codes en M3U playlists.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0c1017;
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0c1017;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+
+        /* Layout */
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #0c1017 0%, #1a1f2e 100%);
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 17, 28, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #6366f1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5, #4f46e5);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(99, 102, 241, 0.1);
+            color: #a78bfa;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .welcome-section {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .icon-circle {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.3);
+            font-size: 32px;
+        }
+
+        .welcome-section h1 {
+            font-size: 1.875rem;
+            font-weight: 900;
+            letter-spacing: -0.025em;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .welcome-section p {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            margin-bottom: 1.5rem;
+            line-height: 1.625;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 3rem;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(30, 41, 59, 0.8);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #a78bfa;
+        }
+
+        .feature-card p {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1f2e, #111622);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #f1f5f9;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #a78bfa;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.5rem;
+            color: #f1f5f9;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: rgba(99, 102, 241, 0.8);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .source-type-select {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .type-option {
+            padding: 0.75rem;
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            background: rgba(30, 41, 59, 0.5);
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .type-option:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        .type-option.active {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-color: #a855f7;
+            color: white;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-footer button {
+            flex: 1;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            color: #a3e635;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                max-width: calc(100% - 2rem);
+            }
+        }
+
+        /* Connection Status Styles */
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            color: #cbd5e1;
+        }
+
+        .connection-status.connecting {
+            border-color: rgba(249, 115, 22, 0.5);
+            background: rgba(249, 115, 22, 0.1);
+            color: #fbbf24;
+        }
+
+        .connection-status.connected {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.1);
+            color: #6ee7b7;
+        }
+
+        .connection-status.error {
+            border-color: rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">📺</div>
+                    <span>Nova IPTV Player</span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="openAboutModal()">About</button>
+                    <button class="btn btn-primary" onclick="openSettingsModal()">⚙️ Settings</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="welcome-section">
+                <div class="icon-circle">📺</div>
+                <h1>Welkom bij Nova Hybrid IPTV Player</h1>
+                <p>
+                    Verbind met je Stalker / Ministra portal (MAC-adres), Xtream Codes server of M3U playlist om Live TV, Films en Series direct uit te lezen en te bekijken.
+                </p>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="openSettingsModal()">
+                        ➕ Portal toevoegen
+                    </button>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📡</div>
+                        <h3>Stalker Portal</h3>
+                        <p>Verbind via MAC-adres</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <h3>Xtream Codes</h3>
+                        <p>Server authenticatie</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h3>M3U Playlists</h3>
+                        <p>Direct URL ondersteuning</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📺</div>
+                        <h3>Live TV</h3>
+                        <p>Kanalen streamen</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎬</div>
+                        <h3>Films</h3>
+                        <p>VOD collectie</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Series</h3>
+                        <p>Afleveringen organizer</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Instellingen & Portalen</h2>
+                <button class="close-btn" onclick="closeSettingsModal()">&times;</button>
+            </div>
+
+            <!-- Tabs -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(99, 102, 241, 0.2); padding-bottom: 1rem;">
+                <button class="btn-tab active" onclick="switchTab('add-source')">Portal Toevoegen</button>
+                <button class="btn-tab" onclick="switchTab('manage-sources')">Mijn Portalen</button>
+            </div>
+
+            <!-- Add Source Tab -->
+            <div id="add-source-tab" class="tab-content active">
+                <div class="source-type-select">
+                    <div class="type-option active" onclick="selectSourceType('stalker', this)">
+                        📡 Stalker
+                    </div>
+                    <div class="type-option" onclick="selectSourceType('xtream', this)">
+                        🔐 Xtream
+                    </div>
+                    <div class="type-option" onclick="selectSourceType('m3u', this)">
+                        📄 M3U
+                    </div>
+                </div>
+
+                <!-- Stalker Form -->
+                <div id="stalker-form" class="source-form">
+                    <div class="form-group">
+                        <label>Portal URL</label>
+                        <input type="text" id="stalker-portal" placeholder="https://portal.example.com" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>MAC Adres</label>
+                        <input type="text" id="stalker-mac" placeholder="00:1A:2B:3C:4D:5E" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Apparaat Model (optioneel)</label>
+                        <input type="text" id="stalker-model" placeholder="MAG250" value="">
+                    </div>
+                </div>
+
+                <!-- Xtream Form -->
+                <div id="xtream-form" class="source-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Server</label>
+                        <input type="text" id="xtream-server" placeholder="http://server.example.com:8000" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Gebruikersnaam</label>
+                        <input type="text" id="xtream-username" placeholder="username" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Wachtwoord</label>
+                        <input type="password" id="xtream-password" placeholder="password" value="">
+                    </div>
+                </div>
+
+                <!-- M3U Form -->
+                <div id="m3u-form" class="source-form" style="display: none;">
+                    <div class="form-group">
+                        <label>M3U Playlist URL</label>
+                        <input type="text" id="m3u-url" placeholder="https://example.com/playlist.m3u" value="">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeSettingsModal()">Annuleren</button>
+                    <button class="btn btn-primary" onclick="addPortal()">Portal Toevoegen</button>
+                </div>
+            </div>
+
+            <!-- Manage Sources Tab -->
+            <div id="manage-sources-tab" class="tab-content" style="display: none;">
+                <div id="sources-list" style="max-height: 300px; overflow-y: auto;">
+                    <p style="color: #9ca3af; text-align: center; padding: 2rem;">Geen portalen toegevoegd.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Over Nova IPTV Player</h2>
+                <button class="close-btn" onclick="closeAboutModal()">&times;</button>
+            </div>
+            <div style="color: #cbd5e1; line-height: 1.6;">
+                <h3 style="color: #a78bfa; margin-bottom: 0.75rem;">Nova Hybrid IPTV Player</h3>
+                <p style="margin-bottom: 1rem;">
+                    Een hybride IPTV-speler voor web en Android met volledige ondersteuning voor:
+                </p>
+                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; list-style-type: disc;">
+                    <li>Stalker / Ministra portals (MAC-authenticatie)</li>
+                    <li>Xtream Codes servers</li>
+                    <li>M3U playlists</li>
+                </ul>
+                <p style="margin-bottom: 1rem;">
+                    <strong>Functies:</strong>
+                </p>
+                <ul style="margin-left: 1.5rem; list-style-type: disc;">
+                    <li>Live TV streaming</li>
+                    <li>Films (VOD) bibliotheek</li>
+                    <li>Series met afleveringen organizer</li>
+                    <li>EPG (Elektronische Programmagids)</li>
+                    <li>Favorieten management</li>
+                    <li>Offline ondersteuning</li>
+                </ul>
+                <p style="margin-top: 1.5rem; font-size: 0.875rem; color: #6b7280;">
+                    © 2026 Nova IPTV Player | All rights reserved
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeAboutModal()" style="flex: 1;">Sluit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let sourceType = 'stalker';
+        let sources = JSON.parse(localStorage.getItem('novaSources') || '[]');
+
+        // Modal Functions
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+            loadSourcesList();
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function openAboutModal() {
+            document.getElementById('aboutModal').classList.add('active');
+        }
+
+        function closeAboutModal() {
+            document.getElementById('aboutModal').classList.remove('active');
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.btn-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            event.target.classList.add('active');
+        }
+
+        // Add CSS for tab button styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn-tab {
+                background: none;
+                border: none;
+                color: #9ca3af;
+                padding: 0.5rem 1rem;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.875rem;
+                border-bottom: 2px solid transparent;
+                transition: all 0.3s;
+            }
+            .btn-tab:hover {
+                color: #a78bfa;
+            }
+            .btn-tab.active {
+                color: #a78bfa;
+                border-bottom-color: #a78bfa;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Source Type Selection
+        function selectSourceType(type, element) {
+            sourceType = type;
+            
+            // Update active state
+            document.querySelectorAll('.type-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            // Hide all forms
+            document.querySelectorAll('.source-form').forEach(form => {
+                form.style.display = 'none';
+            });
+
+            // Show selected form
+            if (type === 'stalker') {
+                document.getElementById('stalker-form').style.display = 'block';
+            } else if (type === 'xtream') {
+                document.getElementById('xtream-form').style.display = 'block';
+            } else if (type === 'm3u') {
+                document.getElementById('m3u-form').style.display = 'block';
+            }
+        }
+
+        // Add Portal
+        function addPortal() {
+            let portal = {
+                id: Date.now().toString(),
+                type: sourceType,
+                name: ''
+            };
+
+            if (sourceType === 'stalker') {
+                const portalUrl = document.getElementById('stalker-portal').value.trim();
+                const mac = document.getElementById('stalker-mac').value.trim();
+                
+                if (!portalUrl || !mac) {
+                    alert('Vul alle vereiste velden in!');
+                    return;
+                }
+
+                portal.name = `Stalker - ${mac}`;
+                portal.portal = portalUrl;
+                portal.mac = mac;
+                portal.model = document.getElementById('stalker-model').value.trim() || 'MAG254';
+            } else if (sourceType === 'xtream') {
+                const server = document.getElementById('xtream-server').value.trim();
+                const username = document.getElementById('xtream-username').value.trim();
+                const password = document.getElementById('xtream-password').value.trim();
+
+                if (!server || !username || !password) {
+                    alert('Vul alle vereiste velden in!');
+                    return;
+                }
+
+                portal.name = `Xtream - ${username}`;
+                portal.server = server;
+                portal.username = username;
+                portal.password = password;
+            } else if (sourceType === 'm3u') {
+                const url = document.getElementById('m3u-url').value.trim();
+
+                if (!url) {
+                    alert('Vul een M3U URL in!');
+                    return;
+                }
+
+                portal.name = 'M3U Playlist';
+                portal.url = url;
+            }
+
+            sources.push(portal);
+            localStorage.setItem('novaSources', JSON.stringify(sources));
+
+            alert('Portal succesvol toegevoegd!');
+            clearForms();
+            loadSourcesList();
+            switchTab('manage-sources');
+        }
+
+        // Load Sources List
+        function loadSourcesList() {
+            const list = document.getElementById('sources-list');
+            
+            if (sources.length === 0) {
+                list.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 2rem;">Geen portalen toegevoegd.</p>';
+                return;
+            }
+
+            list.innerHTML = sources.map(source => `
+                <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 0.5rem; padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; color: #a78bfa;">${source.name}</div>
+                        <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;">Type: ${source.type.toUpperCase()}</div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="removePortal('${source.id}')">Verwijder</button>
+                </div>
+            `).join('');
+        }
+
+        // Remove Portal
+        function removePortal(id) {
+            if (confirm('Weet je zeker dat je deze portal wilt verwijderen?')) {
+                sources = sources.filter(s => s.id !== id);
+                localStorage.setItem('novaSources', JSON.stringify(sources));
+                loadSourcesList();
+            }
+        }
+
+        // Clear Forms
+        function clearForms() {
+            document.getElementById('stalker-portal').value = '';
+            document.getElementById('stalker-mac').value = '';
+            document.getElementById('stalker-model').value = '';
+            document.getElementById('xtream-server').value = '';
+            document.getElementById('xtream-username').value = '';
+            document.getElementById('xtream-password').value = '';
+            document.getElementById('m3u-url').value = '';
+        }
+
+        // Close modal on outside click
+        window.addEventListener('click', (e) => {
+            const settingsModal = document.getElementById('settingsModal');
+            const aboutModal = document.getElementById('aboutModal');
+            
+            if (e.target === settingsModal) {
+                closeSettingsModal();
+            }
+            if (e.target === aboutModal) {
+                closeAboutModal();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            selectSourceType('stalker', document.querySelector('.type-option'));
+        });
+    </script>
+</body>
+</html>
