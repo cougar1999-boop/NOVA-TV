@@ -1,0 +1,6 @@
+{
+  "name": "Nova Hybrid IPTV Player",
+  "description": "Nova Hybrid Web & Android IPTV Player met ondersteuning voor Stalker / Ministra portals, Xtream Codes en M3U playlists.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
