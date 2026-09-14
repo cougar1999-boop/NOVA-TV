@@ -592,8 +592,16 @@ async function handleStalkerRequest(req: Request, res: Response) {
             JsHttpRequest: "1-xml",
           };
 
-          if (t === "vod" && episodeId) {
-            queryParams.episode = String(episodeId);
+          const targetId = episodeId || channelId;
+          if (targetId) {
+            if (t === "vod") {
+              queryParams.movie_id = String(targetId);
+              queryParams.vod_id = String(targetId);
+              queryParams.episode = String(targetId);
+            } else if (t === "series") {
+              queryParams.episode_id = String(targetId);
+              queryParams.movie_id = String(seriesId || targetId);
+            }
           }
 
           const linkData = await stalkerFetch(basePortal, queryParams, { mac, token, model });
@@ -625,6 +633,45 @@ async function handleStalkerRequest(req: Request, res: Response) {
           }
         } catch (err: any) {
           lastError = err.message;
+        }
+      }
+
+      // If still not found for movies/series, try action=get_link or direct portal load endpoint
+      if (!playableUrl && (mediaType === "movie" || mediaType === "episode")) {
+        try {
+          const targetId = episodeId || channelId;
+          const directData = await stalkerFetch(
+            basePortal,
+            {
+              type: "vod",
+              action: "get_link",
+              movie_id: targetId,
+              cmd: cmd || `/media/${targetId}.mpg`,
+              JsHttpRequest: "1-xml",
+            },
+            { mac, token, model }
+          );
+          const dJs = (directData && (directData as any).js) ? (directData as any).js : directData;
+          let dUrl = typeof dJs === "string" ? dJs : (dJs?.cmd || dJs?.url || dJs?.data || "");
+          dUrl = String(dUrl).replace(/^ffmpeg\s+/i, "").trim();
+          if (dUrl.startsWith("/") && basePortal) {
+            dUrl = new URL(dUrl, basePortal).href;
+          }
+          if (/^https?:\/\//i.test(dUrl)) {
+            playableUrl = dUrl;
+          }
+        } catch {}
+      }
+
+      if (!playableUrl) {
+        // Fallback: construct direct stream URL from portal base and item/episode/channel ID
+        const targetId = episodeId || channelId;
+        if (targetId) {
+          if (mediaType === "movie" || mediaType === "episode") {
+            playableUrl = new URL(`/media/${targetId}.mpg`, basePortal).href;
+          } else {
+            playableUrl = new URL(`/ch/${targetId}`, basePortal).href;
+          }
         }
       }
 
@@ -1022,7 +1069,6 @@ async function handleRemuxRequest(req: Request, res: Response) {
   }
 }
 
-app.get("/api/remux.ts", handleRemuxRequest);
 app.get("/api/remux.mp4", handleRemuxRequest);
 app.get("/api/remux", handleRemuxRequest);
 

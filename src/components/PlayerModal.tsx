@@ -69,6 +69,7 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({ item, source, onClose 
 
     async function initStream() {
       try {
+        const resumeSec = resumePrompt?.position || 0;
         let streamUrl = item?.url || "";
 
         // If Stalker, resolve fresh playable stream URL via create_link
@@ -238,12 +239,18 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({ item, source, onClose 
             startRemuxPlayback();
           }
         }
-        // Strategy 2: Movies / VOD / MKV files
-        // Browsers cannot natively play Matroska (.mkv) in HTML5 <video>.
-        // Route through fMP4 remuxer for instant playback in all browsers!
+        // Strategy 2: Movies / VOD / Series episodes
+        // Stream through FFmpeg remuxed fragmented MP4 for 100% native browser compatibility
         else if (isVod || isMkv) {
-          setStatusMsg("Video laden en synchroniseren...");
-          startRemuxPlayback();
+          setStatusMsg("Video laden...");
+          const remuxMp4Url = buildProxiedStreamUrl(streamUrl, source, item, resumePrompt?.position || 0, true);
+          setCurrentStreamUrl(remuxMp4Url);
+          video.src = remuxMp4Url;
+          video.load();
+          video.play().catch((err: any) => {
+            if (err.name === "NotAllowedError") setNeedUserPlay(true);
+          });
+          setLoading(false);
         }
         // Strategy 3: MPEG-TS Live TV Streams
         else if (isTs) {
@@ -306,16 +313,25 @@ export const PlayerModal: React.FC<PlayerModalProps> = ({ item, source, onClose 
           });
         }
 
-        // Global video error handler: if stream fails, try remux once before raising error
+        // Global video error handler: bidirectional fallback between remux and direct stream
         video.onerror = () => {
           if (!isMounted) return;
-          if (!video.src.includes("remux.mp4")) {
+          if (video.src.includes("remux.mp4")) {
+            console.warn("Remux error, falling back to direct stream...");
+            cleanupCurrentPlayer();
+            setStatusMsg("Directe stream proberen...");
+            const directUrl = buildProxiedStreamUrl(streamUrl, source, item, 0, false);
+            setCurrentStreamUrl(directUrl);
+            video.src = directUrl;
+            video.load();
+            video.play().catch(() => {
+              setLoading(false);
+              setError("Videoweergave mislukt. Controleer portaalverbinding of streamstatus.");
+            });
+          } else {
             console.warn("Direct stream error, switching to remux fallback...");
             cleanupCurrentPlayer();
             startRemuxPlayback();
-          } else {
-            setLoading(false);
-            setError("Videoweergave mislukt. Controleer portaalverbinding of streamstatus.");
           }
         };
 

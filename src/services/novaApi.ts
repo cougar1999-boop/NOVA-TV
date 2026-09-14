@@ -333,6 +333,20 @@ export async function stalkerLoadSeriesEpisodes(
  * Always requests a fresh link from the portal to acquire a valid play_token.
  */
 export async function stalkerResolvePlayUrl(source: NovaSource, item: NovaItem): Promise<string> {
+  // Priority 1: If item.cmd is already a full streaming URL or base64 command
+  if (item.cmd) {
+    let clean = item.cmd.replace(/^ffmpeg\s+/i, "").replace(/^ffrt\s+/i, "").trim();
+    if ((clean.startsWith("/") || clean.startsWith("./")) && source.portal) {
+      clean = new URL(clean, source.portal).href;
+    }
+    if (/^https?:\/\//i.test(clean)) {
+      if (item.id && /([?&]stream=)(&|$)/.test(clean)) {
+        clean = clean.replace(/([?&]stream=)(&|$)/, `$1${item.id}$2`);
+      }
+      return clean;
+    }
+  }
+
   const cmd = item.cmd || (item.mediaType === "episode" || item.mediaType === "movie" ? `/media/${item.id}.mpg` : "");
 
   try {
@@ -626,7 +640,7 @@ export function buildProxiedStreamUrl(
   if (!url) return "";
 
   const params = new URLSearchParams({ url });
-  const endpoint = remux ? "/api/remux.ts" : "/api/stream.php";
+  const endpoint = remux ? "/api/remux.mp4" : "/api/stream.php";
 
   // IMPORTANT: For Stalker sources, ALL streams (Live TV, Movies, AND Series Episodes)
   // must go through the Stalker stream proxy with the correct headers & session!
